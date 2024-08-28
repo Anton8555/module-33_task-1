@@ -3,8 +3,6 @@
 #include <string>
 #include <exception>
 
-// <key: article, value: number of pieces>
-#define product std::string,int
 // defining the conditions
 #define isYes ((answer == "y") || (answer == "Y"))
 #define isNo ((answer == "n") || (answer == "N"))
@@ -19,9 +17,9 @@ enum typeCommand {
 };
 
 // the store's database
-std::map<product> data_base;
+std::map<std::string, int> data_base;
 // shopping cart
-std::map<product> shopping_cart;
+std::map<std::string, int> shopping_cart;
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -37,7 +35,7 @@ use the code "NONE" so that this function does not apply a correctness check to 
 void enter_data(const typeCommand inCommand, std::string & outArticle, int & outCount)
 {
     // iterators
-    std::map<product>::iterator data_base_it, shopping_cart_it;
+    std::map<std::string, int>::iterator data_base_it, shopping_cart_it;
 
     // entering the item number
     std::cout << "Enter the article: ";
@@ -84,6 +82,9 @@ void enter_data(const typeCommand inCommand, std::string & outArticle, int & out
                 throw std::invalid_argument("There is no product in this quantity in the shopping cart.");
             break;
         }
+        default: {
+            std::runtime_error("The command is not defined.");
+        }
     }
 }
 
@@ -92,13 +93,13 @@ void enter_data(const typeCommand inCommand, std::string & outArticle, int & out
  @param inCaption the title of the list of list items.
  @param inList a list of items to output.
 */
-void list_print(const std::string & inCaption, std::map<product> & inList)
+void list_print(const std::string & inCaption, std::map<std::string, int> & inList)
 {
     std::cout << "\n--- " << inCaption << " list: ---\n";
     if(inList.empty())
         std::cout << "No elements.\n";
     else
-        for(std::map<product>::iterator it = inList.begin(); it != inList.end(); it++)
+        for(std::map<std::string, int>::iterator it = inList.begin(); it != inList.end(); it++)
             std::cout << it->first << " - " << it->second << std::endl;
     std::cout << "--- End of " << inCaption << ". ---\n";
 }
@@ -126,7 +127,7 @@ int main()
         enter_data(NONE, article, count);
 
         // adding data to the store's database
-        data_base.insert(std::pair<product>(article, count));
+        data_base.insert(std::pair<std::string, int>(article, count));
     }
 
 
@@ -166,7 +167,7 @@ int main()
 
             // 2) changing the data in the shopping cart list
             // if such an item is in the cart
-            std::map<product>::iterator it = shopping_cart.find(article);
+            std::map<std::string, int>::iterator it = shopping_cart.find(article);
             if(it != shopping_cart.end()) {
                 // then change the quantity
                 it->second += count;
@@ -174,7 +175,7 @@ int main()
             else
             {
                 // otherwise, add a new product
-                shopping_cart.insert(std::pair<product>(article, count));
+                shopping_cart.insert(std::pair<std::string, int>(article, count));
             }
 
         }
@@ -201,7 +202,7 @@ int main()
             data_base.find(article)->second += count;
             
             // 2) changing the data in the shopping cart list
-            std::map<product>::iterator it = shopping_cart.find(article);
+            std::map<std::string, int>::iterator it = shopping_cart.find(article);
             it->second -= count;
             // if the quantity of the product is zero in the cart
             if(it->second == 0) {
